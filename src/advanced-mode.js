@@ -67,8 +67,9 @@ const Image = styled.img`
 const ResultContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin: 0 6em;
-    width: 100%;
+    /* margin: 0 6em; */
+    /* justify-content: center; */
+    max-width: 90%;
     overflow-x: auto;
 `
 
@@ -99,38 +100,33 @@ export default class AdvancedMode extends Component {
         // console.log(rawJson);
 
         const json = JSON.parse(rawJson);
-        console.log(json);
         const itemList = json.mods.listItems
-        console.log(itemList);
 
-        let temparr = [];
+        let headings = [];
         Object.keys(this.state).map(key => {
             if (key === "itemList" || key === "links") return;
-            if (this.state[key] === true) temparr.push(key);
+            if (this.state[key] === true) headings.push(key);
         })
 
-        var tempItemList = [];
+        var parsedItemList = [];
         for (let i = 0; i < itemList.length; i++) {
             let current = itemList[i]
             let newCurrent = {};
-            for(let j = 0; j < temparr.length; j++) {
-                // console.log("here: ", temparr);
-                if (temparr[j] === "productUrl") current[temparr[j]] = "https:" + current[temparr[j]];
-                newCurrent = { ...newCurrent, [temparr[j]]: current[temparr[j]] };
+            for(let j = 0; j < headings.length; j++) {
+                // console.log("here: ", headings);
+                if (headings[j] === "productUrl") current[headings[j]] = "https:" + current[headings[j]];
+                newCurrent = { ...newCurrent, [headings[j]]: current[headings[j]] };
             }
-            tempItemList.push({index: i + 1, ...newCurrent});
+            parsedItemList.push({index: i + 1, ...newCurrent});
         }
+        Object.keys(parsedItemList[0]).map(key => console.log(key));
+        headings.unshift("index")
 
-        console.log(tempItemList);
-        Object.keys(tempItemList[0]).map(key => console.log(key));
-        temparr.unshift("index")
-        console.log(temparr);
-        this.setState({ itemList: tempItemList, headings: temparr });
+        this.setState({ itemList: parsedItemList, headings });
 
     }
 
     handleChange(field, e) {
-        console.log(e.target.checked, field);
         this.setState({ ...this.state, [field]: e.target.checked });
     }
 
@@ -147,6 +143,7 @@ export default class AdvancedMode extends Component {
                             </FormGroup>
                             <FormGroup>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Image" onChange={ this.handleChange.bind(this, "image")}/> } label="Image"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Cheapest Sku" onChange={ this.handleChange.bind(this, "cheapest_sku")}/> } label="cheapest_sku"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Name" onChange={ this.handleChange.bind(this, "name")}/> } label="Name"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Seller ID" onChange={ this.handleChange.bind(this, "sellerId")}/> } label="Seller ID"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Seller Name" onChange={ this.handleChange.bind(this, "sellerName")}/> } label="Seller Name"/>
@@ -161,7 +158,7 @@ export default class AdvancedMode extends Component {
                     </Form>
                 </Container>
                 <ResultContainer>
-                    <StyledTable width={1}>
+                    <StyledTable fixedHeader={true} style={{ width: "900px", tableLayout: 'auto' }}>
                         <TableHead>
                             <TableRow>
                                 {/* { this.state.itemList.length > 0 ? Object.keys(this.state.itemList[0]).map(key => <TableCell>{key}</TableCell>) : null} */}

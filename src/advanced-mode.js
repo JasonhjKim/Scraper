@@ -83,6 +83,7 @@ export default class AdvancedMode extends Component {
         itemList: [],
         links: "",
         headings: [],
+        isHidden: false,
     }
     handleSubmit(e) {
         e.preventDefault();
@@ -105,7 +106,7 @@ export default class AdvancedMode extends Component {
         let headings = [];
         let links = "";
         Object.keys(this.state).map(key => {
-            if (key === "itemList" || key === "links") return;
+            if (key === "itemList" || key === "links" || key === "headings" || key === "isHidden") return;
             if (this.state[key] === true) headings.push(key);
         })
 
@@ -134,6 +135,12 @@ export default class AdvancedMode extends Component {
         this.setState({ ...this.state, [field]: e.target.checked });
     }
 
+    handleHideForm() {
+        const { isHidden } = this.state;
+        let temp = !isHidden;
+        this.setState({ isHidden: temp });
+    }
+
     handleCopyLink(e) {
         var dummy = document.createElement("textarea");
         dummy.value = this.state.links;
@@ -148,7 +155,7 @@ export default class AdvancedMode extends Component {
             <Body>
                 <NavBar/>
                 <Container>
-                    <Form onSubmit={this.handleSubmit.bind(this)}>
+                    { !this.state.isHidden ? <Form onSubmit={this.handleSubmit.bind(this)}>
                         <Label>View Source Lazada Here: </Label>
                         <FormWrapper>
                             <FormGroup>
@@ -168,14 +175,16 @@ export default class AdvancedMode extends Component {
                             </FormGroup>
                         </FormWrapper>
                         <SubmitButton type="submit" value="Hit it" />
-                    </Form>
+                    </Form> : null}
                 </Container>
-
                 {this.state.headings.length > 0 && this.state.itemList.length > 0 ?
                     <ResultContainer>
                         <ToolContainer>
                             <Tooltip title="Copy all links to Clipboard">
-                                <CopyLinkButton onClick={this.handleCopyLink.bind(this)}>Copy All Links</CopyLinkButton>
+                                <CopyLinkButton onClick={ this.handleCopyLink.bind(this) }>Copy All Links</CopyLinkButton>
+                            </Tooltip>
+                            <Tooltip title="Hide Form">
+                                <CopyLinkButton onClick={ this.handleHideForm.bind(this) }>{ this.state.isHidden ? "Show Form" : "Hide Form"}</CopyLinkButton>
                             </Tooltip>
                         </ToolContainer>
                         <StyledTable fixedHeader={true} style={{ width: "900px", tableLayout: 'auto' }}>
@@ -257,10 +266,25 @@ const CopyLinkButton = styled.button`
     outline: none;
     font-weight: bold;
     cursor: pointer;
+    margin: 0 1em 0 0;
 
     &:hover {
         height: 38px;
     }
+`
+
+const HideForm = styled.button`
+    height: 50px;
+    width: 50%;
+    font-size: 18px;
+    background-color: #cc7764;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 1em;
 `
 
 const NavBar = () => {

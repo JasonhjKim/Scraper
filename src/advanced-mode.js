@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom'
 
-import { FormGroup, FormControlLabel, Checkbox, TableRow, Table, TableBody, TableHead, TableCell } from '@material-ui/core';
+import { Tooltip, FormGroup, FormControlLabel, Checkbox, TableRow, Table, TableBody, TableHead, TableCell } from '@material-ui/core';
 
 const Body = styled.div`
     width: 100%;
@@ -103,6 +103,7 @@ export default class AdvancedMode extends Component {
         const itemList = json.mods.listItems
 
         let headings = [];
+        let links = "";
         Object.keys(this.state).map(key => {
             if (key === "itemList" || key === "links") return;
             if (this.state[key] === true) headings.push(key);
@@ -114,7 +115,10 @@ export default class AdvancedMode extends Component {
             let newCurrent = {};
             for(let j = 0; j < headings.length; j++) {
                 // console.log("here: ", headings);
-                if (headings[j] === "productUrl") current[headings[j]] = "https:" + current[headings[j]];
+                if (headings[j] === "productUrl") {
+                    current[headings[j]] = "https:" + current[headings[j]];
+                    links = links + current[headings[j]] + "\n";
+                }
                 newCurrent = { ...newCurrent, [headings[j]]: current[headings[j]] };
             }
             parsedItemList.push({index: i + 1, ...newCurrent});
@@ -122,12 +126,21 @@ export default class AdvancedMode extends Component {
         Object.keys(parsedItemList[0]).map(key => console.log(key));
         headings.unshift("index")
 
-        this.setState({ itemList: parsedItemList, headings });
+        this.setState({ itemList: parsedItemList, headings, links});
 
     }
 
     handleChange(field, e) {
         this.setState({ ...this.state, [field]: e.target.checked });
+    }
+
+    handleCopyLink(e) {
+        var dummy = document.createElement("textarea");
+        dummy.value = this.state.links;
+        document.body.appendChild(dummy);
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
     }
 
     render() {
@@ -143,7 +156,7 @@ export default class AdvancedMode extends Component {
                             </FormGroup>
                             <FormGroup>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Image" onChange={ this.handleChange.bind(this, "image")}/> } label="Image"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Cheapest Sku" onChange={ this.handleChange.bind(this, "cheapest_sku")}/> } label="cheapest_sku"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Cheapest Sku" onChange={ this.handleChange.bind(this, "cheapest_sku")}/> } label="Sku"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Name" onChange={ this.handleChange.bind(this, "name")}/> } label="Name"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Seller ID" onChange={ this.handleChange.bind(this, "sellerId")}/> } label="Seller ID"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Seller Name" onChange={ this.handleChange.bind(this, "sellerName")}/> } label="Seller Name"/>
@@ -157,27 +170,35 @@ export default class AdvancedMode extends Component {
                         <SubmitButton type="submit" value="Hit it" />
                     </Form>
                 </Container>
-                <ResultContainer>
-                    <StyledTable fixedHeader={true} style={{ width: "900px", tableLayout: 'auto' }}>
-                        <TableHead>
-                            <TableRow>
-                                {/* { this.state.itemList.length > 0 ? Object.keys(this.state.itemList[0]).map(key => <TableCell>{key}</TableCell>) : null} */}
-                                { this.state.headings.length > 0 ? this.state.headings.map(heading => <TableCell>{heading}</TableCell>) : null}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            { this.state.itemList.length > 0 ? this.state.itemList.map(item => 
+
+                {this.state.headings.length > 0 && this.state.itemList.length > 0 ?
+                    <ResultContainer>
+                        <ToolContainer>
+                            <Tooltip title="Copy all links to Clipboard">
+                                <CopyLinkButton onClick={this.handleCopyLink.bind(this)}>Copy All Links</CopyLinkButton>
+                            </Tooltip>
+                        </ToolContainer>
+                        <StyledTable fixedHeader={true} style={{ width: "900px", tableLayout: 'auto' }}>
+                            <TableHead>
                                 <TableRow>
-                                    { Object.keys(item).map(key => 
-                                        <React.Fragment>
-                                            { key === "image" ? <TableCell><Image src={item[key]}/></TableCell> : <TableCell>{item[key]}</TableCell>}
-                                        </React.Fragment>
-                                    )}
+                                    {/* { this.state.itemList.length > 0 ? Object.keys(this.state.itemList[0]).map(key => <TableCell>{key}</TableCell>) : null} */}
+                                    { this.state.headings.map(heading => <TableCell>{heading}</TableCell>) }
                                 </TableRow>
-                            ) : null}
-                        </TableBody>
-                    </StyledTable>
-                </ResultContainer>
+                            </TableHead>
+                            <TableBody>
+                                { this.state.itemList.map(item => 
+                                    <TableRow>
+                                        { Object.keys(item).map(key => 
+                                            <React.Fragment>
+                                                { key === "image" ? <TableCell><Image src={item[key]}/></TableCell> : <TableCell>{item[key]}</TableCell>}
+                                            </React.Fragment>
+                                        )}
+                                    </TableRow>
+                                ) }
+                            </TableBody>
+                        </StyledTable>
+                    </ResultContainer> 
+                : null }
             </Body>
         )
     }
@@ -216,6 +237,30 @@ const Simple = styled.button`
 const StyledLink = styled(Link)`
     text-decoration: none;
     color: white;
+`
+
+
+const ToolContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 60px;
+    align-items: center;
+`
+
+const CopyLinkButton = styled.button`
+    height: 40px;
+    width: 120px;
+    background-color: #cc7764;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    outline: none;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+        height: 38px;
+    }
 `
 
 const NavBar = () => {

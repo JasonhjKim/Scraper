@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom'
-
 import { Tooltip, FormGroup, FormControlLabel, Checkbox, TableRow, Table, TableBody, TableHead, TableCell } from '@material-ui/core';
+import { PDFExport  } from '@progress/kendo-react-pdf';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const Body = styled.div`
     width: 100%;
@@ -70,7 +71,6 @@ const ResultContainer = styled.div`
     /* margin: 0 6em; */
     /* justify-content: center; */
     max-width: 90%;
-    overflow-x: auto;
 `
 
 const StyledTable = styled(Table)`
@@ -84,7 +84,19 @@ export default class AdvancedMode extends Component {
         links: "",
         headings: [],
         isHidden: false,
+        textbox: "",
     }
+
+    pdfExportComponent;
+    table;
+
+    componentDidMount () {
+        const script = document.createElement("script");
+        script.src = "https://kendo.cdn.telerik.com/2015.2.805/js/pako_deflate.min.js";
+        script.async = true;
+        document.body.appendChild(script);
+    }
+
     handleSubmit(e) {
         e.preventDefault();
         this.parseData(e.target[0].value)
@@ -106,7 +118,7 @@ export default class AdvancedMode extends Component {
         let headings = [];
         let links = "";
         Object.keys(this.state).map(key => {
-            if (key === "itemList" || key === "links" || key === "headings" || key === "isHidden") return;
+            if (key === "itemList" || key === "links" || key === "headings" || key === "isHidden" || key === "textbox") return;
             if (this.state[key] === true) headings.push(key);
         })
 
@@ -150,7 +162,13 @@ export default class AdvancedMode extends Component {
         document.body.removeChild(dummy);
     }
 
+    exportPDFWithMethod() {
+        console.log("Export to pdf got called")
+        this.pdfExportComponent.save();
+    }
+
     render() {
+        const tableWidth = React.createRef();
         return(
             <Body>
                 <NavBar/>
@@ -159,58 +177,69 @@ export default class AdvancedMode extends Component {
                         <Label>View Source Lazada Here: </Label>
                         <FormWrapper>
                             <FormGroup>
-                                <TextArea name="" id="" cols="30" rows="10" required></TextArea>
+                                <TextArea name="" id="" cols="30" rows="10" required value={this.state.textbox} onChange={(e) => this.setState({ textbox: e.target.value })}></TextArea>
                             </FormGroup>
                             <FormGroup>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Image" onChange={ this.handleChange.bind(this, "image")}/> } label="Image"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Cheapest Sku" onChange={ this.handleChange.bind(this, "cheapest_sku")}/> } label="Sku"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Name" onChange={ this.handleChange.bind(this, "name")}/> } label="Name"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Price Show" onChange={ this.handleChange.bind(this, "priceShow")}/> } label="Price Show"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Seller ID" onChange={ this.handleChange.bind(this, "sellerId")}/> } label="Seller ID"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Seller Name" onChange={ this.handleChange.bind(this, "sellerName")}/> } label="Seller Name"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Cheapest Sku" onChange={ this.handleChange.bind(this, "cheapest_sku")}/> } label="Sku"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Product Url" onChange={ this.handleChange.bind(this, "productUrl")}/> } label="Product Url"/>
+                                <FormControlLabel control={ <Checkbox type="checkbox" value="Name" onChange={ this.handleChange.bind(this, "name")}/> } label="Name"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Brand ID" onChange={ this.handleChange.bind(this, "brandId")}/> } label="Brand ID"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Brand Name" onChange={ this.handleChange.bind(this, "brandName")}/> } label="Brand Name"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Product Url" onChange={ this.handleChange.bind(this, "productUrl")}/> } label="Product Url"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Price Show" onChange={ this.handleChange.bind(this, "priceShow")}/> } label="Price Show"/>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Location" onChange={ this.handleChange.bind(this, "location")}/> } label="Location"/>
                             </FormGroup>
                         </FormWrapper>
                         <SubmitButton type="submit" value="Hit it" />
-                    </Form> : null}
+                    </Form> : ""}
                 </Container>
                 {this.state.headings.length > 0 && this.state.itemList.length > 0 ?
                     <ResultContainer>
                         <ToolContainer>
+                            <Tooltip title="Export to PDF">
+                                <CopyLinkButton onClick={ this.exportPDFWithMethod.bind(this) }>Export to PDF</CopyLinkButton>
+                            </Tooltip>
                             <Tooltip title="Copy all links to Clipboard">
-                                <CopyLinkButton onClick={ this.handleCopyLink.bind(this) }>Copy All Links</CopyLinkButton>
+                                <CopyToClipboard value={this.state.textbox}>
+                                    <CopyLinkButton onClick={ this.handleCopyLink.bind(this) }>Copy All Links</CopyLinkButton>
+                                </CopyToClipboard>
                             </Tooltip>
                             <Tooltip title="Hide Form">
                                 <CopyLinkButton onClick={ this.handleHideForm.bind(this) }>{ this.state.isHidden ? "Show Form" : "Hide Form"}</CopyLinkButton>
                             </Tooltip>
+                            {/* <Tooltip title="Hide Form">
+                                <CopyLinkButton onClick={ this.handleExportToPDF.bind(this) }>Export to PDF</CopyLinkButton>
+                            </Tooltip> */}
                         </ToolContainer>
-                        <StyledTable fixedHeader={true} style={{ width: "900px", tableLayout: 'auto' }}>
-                            <TableHead>
-                                <TableRow>
-                                    {/* { this.state.itemList.length > 0 ? Object.keys(this.state.itemList[0]).map(key => <TableCell>{key}</TableCell>) : null} */}
-                                    { this.state.headings.map(heading => <TableCell>{heading}</TableCell>) }
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                { this.state.itemList.map(item => 
+                        <PDFExport ref={(component) => this.pdfExportComponent = component } proxyURL={"https://demos.telerik.com/kendo-ui/service/export"} imageResolution={50}>
+                            <StyledTable ref={(table) => this.table = table } style={{ tableLayout: "auto", width: "auto", minWidth: "500px"}}>
+                                <TableHead>
                                     <TableRow>
-                                        { Object.keys(item).map(key => 
-                                            <React.Fragment>
-                                                { key === "image" ? <TableCell><Image src={item[key]}/></TableCell> : <TableCell>{item[key]}</TableCell>}
-                                            </React.Fragment>
-                                        )}
+                                        {/* { this.state.itemList.length > 0 ? Object.keys(this.state.itemList[0]).map(key => <TableCell>{key}</TableCell>) : null} */}
+                                        { this.state.headings.map(heading => <TableCell>{heading}</TableCell>) }
                                     </TableRow>
-                                ) }
-                            </TableBody>
-                        </StyledTable>
+                                </TableHead>
+                                <TableBody>
+                                    { this.state.itemList.map(item => 
+                                        <TableRow>
+                                            { Object.keys(item).map(key => 
+                                                <React.Fragment>
+                                                    { key === "image" ? <TableCell><Image src={item[key]}/></TableCell> : <TableCell>{item[key]}</TableCell>}
+                                                </React.Fragment>
+                                            )}
+                                        </TableRow>
+                                    ) }
+                                </TableBody>
+                            </StyledTable>
+                        </PDFExport>
                     </ResultContainer> 
                 : null }
             </Body>
         )
     }
+
 }
 
 const NavBarContainer = styled.div`
@@ -273,18 +302,21 @@ const CopyLinkButton = styled.button`
     }
 `
 
-const HideForm = styled.button`
-    height: 50px;
-    width: 50%;
-    font-size: 18px;
+const ExportPDF = styled.button`
+    height: 40px;
+    width: 120px;
     background-color: #cc7764;
     color: white;
-    border-radius: 8px;
+    border-radius: 4px;
     border: none;
     outline: none;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 1em;
+    margin: 0 1em 0 0;
+
+    &:hover {
+        height: 38px;
+    }
 `
 
 const NavBar = () => {

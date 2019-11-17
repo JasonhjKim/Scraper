@@ -47,10 +47,24 @@ const SubmitButton = styled.input`
     margin: 1em 1em 1em 0;
 `
 
+const AddButton = styled.button`
+    width: 400px;
+    height: 40px;
+    color: white;
+    background-color: #3c4f7a;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    align-self: center;
+    border: none;
+    margin-top: 1em;
+`
+
 const TextArea = styled.textarea`
     width: 700px;
     height: 400px;
     border-radius: 4px;
+    margin-top: 0.5em;
 `   
 
 const FormWrapper = styled.div`
@@ -78,13 +92,19 @@ const StyledTable = styled(Table)`
     /* width: 900px; */
 `
 
+const Heading = styled.h1`
+    color: #6485CC;
+    margin: 1em 0 ;
+`
+
 export default class AdvancedMode extends Component {
     state = {
         itemList: [],
         links: "",
         headings: [],
         isHidden: false,
-        textbox: "",
+        textbox: [""],
+        boxCount: [""],
     }
 
     pdfExportComponent;
@@ -104,42 +124,55 @@ export default class AdvancedMode extends Component {
 
 
     parseData(raw) {
-        const firstIndex = raw.indexOf("window.pageData=") + 16;
-        const lastIndex = raw.indexOf("}</script>") + 1;
-        console.log("first: ", firstIndex, raw[firstIndex + 16]);
-        console.log("last: ", lastIndex, raw[lastIndex]);
-
-        const rawJson = raw.substring(firstIndex, lastIndex);
-        // console.log(rawJson);
-
-        const json = JSON.parse(rawJson);
-        const itemList = json.mods.listItems
-
+        let temp = [];
         let headings = [];
         let links = "";
+
         Object.keys(this.state).map(key => {
-            if (key === "itemList" || key === "links" || key === "headings" || key === "isHidden" || key === "textbox") return;
+            if (key === "itemList" || key === "links" || key === "headings" || key === "isHidden" || key === "textbox" || key === "boxCount") return;
             if (this.state[key] === true) headings.push(key);
         })
-
-        var parsedItemList = [];
-        for (let i = 0; i < itemList.length; i++) {
-            let current = itemList[i]
-            let newCurrent = {};
-            for(let j = 0; j < headings.length; j++) {
-                // console.log("here: ", headings);
-                if (headings[j] === "productUrl") {
-                    current[headings[j]] = "https:" + current[headings[j]];
-                    links = links + current[headings[j]] + "\n";
-                }
-                newCurrent = { ...newCurrent, [headings[j]]: current[headings[j]] };
-            }
-            parsedItemList.push({index: i + 1, ...newCurrent});
-        }
-        Object.keys(parsedItemList[0]).map(key => console.log(key));
         headings.unshift("index")
 
-        this.setState({ itemList: parsedItemList, headings, links});
+        const { textbox } = this.state;
+        textbox.map((tb, index) => {
+            const firstIndex = tb.indexOf("window.pageData=") + 16;
+            const lastIndex = tb.indexOf("}</script>") + 1;
+            console.log("first: ", firstIndex, tb[firstIndex + 16]);
+            console.log("last: ", lastIndex, tb[lastIndex]);
+
+            const rawJson = tb.substring(firstIndex, lastIndex);
+            // console.log(rawJson);
+
+            const json = JSON.parse(rawJson);
+            const itemList = json.mods.listItems
+            console.log(itemList);
+
+
+            var parsedItemList = [];
+            for (let i = 0; i < itemList.length; i++) {
+                let current = itemList[i]
+                let newCurrent = {};
+                console.log("current", current);
+                for(let j = 0; j < headings.length; j++) {
+                    // console.log("here: ", headings);
+                    if (headings[j] === "productUrl") {
+                        current[headings[j]] = "https:" + current[headings[j]];
+                        links = links + current[headings[j]] + "\n";
+                    }
+                    newCurrent = { ...newCurrent, [headings[j]]: current[headings[j]] };
+                }
+                parsedItemList.push({index: i + 1, ...newCurrent});
+            }
+            // Object.keys(parsedItemList[0]).map(key => console.log(key));
+            // headings.unshift("index")
+
+            temp.push(parsedItemList);
+        })
+
+        console.log(headings);
+
+        this.setState({ itemList: temp, headings, links});
 
     }
 
@@ -162,22 +195,39 @@ export default class AdvancedMode extends Component {
         document.body.removeChild(dummy);
     }
 
+    handleTextBoxChange(index, e) {
+        const textboxes = this.state.textbox.slice();
+        textboxes[index] = e.target.value;
+
+        this.setState({ textbox: textboxes });
+    }
+
     exportPDFWithMethod() {
         console.log("Export to pdf got called")
         this.pdfExportComponent.save();
     }
 
+    handleAddViewSource() {
+        const { boxCount, textbox } = this.state;
+        this.setState({ boxCount: [...boxCount, ""], textbox:[...textbox, ""] });
+    }
+
     render() {
-        const tableWidth = React.createRef();
         return(
             <Body>
                 <NavBar/>
+                <Tooltip title="Add additional textarea to process multiple view source">
+                    <AddButton onClick={ this.handleAddViewSource.bind(this) }>Add Another View Source</AddButton>
+                </Tooltip>
                 <Container>
                     { !this.state.isHidden ? <Form onSubmit={this.handleSubmit.bind(this)}>
                         <Label>View Source Lazada Here: </Label>
                         <FormWrapper>
                             <FormGroup>
-                                <TextArea name="" id="" cols="30" rows="10" required value={this.state.textbox} onChange={(e) => this.setState({ textbox: e.target.value })}></TextArea>
+                                {   this.state.boxCount.length > 0 ? this.state.boxCount.map((item, index) => 
+                                        <TextArea name="" id="" cols="30" rows="10" required value={this.state.textbox[index]} onChange={ this.handleTextBoxChange.bind(this, index) }></TextArea>
+                                    ) : null
+                                }
                             </FormGroup>
                             <FormGroup>
                                 <FormControlLabel control={ <Checkbox type="checkbox" value="Image" onChange={ this.handleChange.bind(this, "image")}/> } label="Image"/>
@@ -209,30 +259,41 @@ export default class AdvancedMode extends Component {
                             <Tooltip title="Hide Form">
                                 <CopyLinkButton onClick={ this.handleHideForm.bind(this) }>{ this.state.isHidden ? "Show Form" : "Hide Form"}</CopyLinkButton>
                             </Tooltip>
-                            {/* <Tooltip title="Hide Form">
-                                <CopyLinkButton onClick={ this.handleExportToPDF.bind(this) }>Export to PDF</CopyLinkButton>
-                            </Tooltip> */}
                         </ToolContainer>
                         <PDFExport ref={(component) => this.pdfExportComponent = component } proxyURL={"https://demos.telerik.com/kendo-ui/service/export"} imageResolution={50}>
-                            <StyledTable ref={(table) => this.table = table } style={{ tableLayout: "auto", width: "auto", minWidth: "500px"}}>
-                                <TableHead>
-                                    <TableRow>
-                                        {/* { this.state.itemList.length > 0 ? Object.keys(this.state.itemList[0]).map(key => <TableCell>{key}</TableCell>) : null} */}
-                                        { this.state.headings.map(heading => <TableCell>{heading}</TableCell>) }
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    { this.state.itemList.map(item => 
-                                        <TableRow>
-                                            { Object.keys(item).map(key => 
-                                                <React.Fragment>
-                                                    { key === "image" ? <TableCell><Image src={item[key]}/></TableCell> : <TableCell>{item[key]}</TableCell>}
-                                                </React.Fragment>
-                                            )}
-                                        </TableRow>
-                                    ) }
-                                </TableBody>
-                            </StyledTable>
+                                { this.state.itemList.length > 0 ? this.state.itemList.map((li, i) => 
+                                <React.Fragment>
+                                    <Heading>Result from View Source #{i + 1}</Heading>
+                                        <StyledTable ref={(table) => this.table = table } style={{ tableLayout: "auto", width: "auto", minWidth: "500px"}}>
+                                            <TableHead>
+                                                <TableRow>
+                                                    {/* { this.state.itemList.length > 0 ? Object.keys(this.state.itemList[0]).map(key => <TableCell>{key}</TableCell>) : null} */}
+                                                    { this.state.headings.map(heading => <TableCell>{heading}</TableCell>) }
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                { li.map((item, index) => 
+                                                    <TableRow>
+                                                        { Object.keys(item).map((key) =>  {
+                                                            if (key === "image") {
+                                                                return (<TableCell><Image src={item[key]}/></TableCell>)
+                                                            }
+
+                                                            if(key === "index") {
+                                                                return <TableCell>{index}</TableCell>;
+                                                            }
+                                                            return <TableCell>{item[key]}</TableCell>;
+                                                        }
+                                                            // <React.Fragment>
+                                                            //     { key === "image" ? <TableCell><Image src={item[key]}/></TableCell> : <TableCell>{item[key]}</TableCell> || key === "index" ? index : null }
+                                                            // </React.Fragment>
+                                                        )}
+                                                    </TableRow>
+                                                ) }
+                                            </TableBody> 
+                                        </StyledTable>
+                                    </React.Fragment>
+                                ) : null}
                         </PDFExport>
                     </ResultContainer> 
                 : null }
@@ -286,23 +347,6 @@ const ToolContainer = styled.div`
 `
 
 const CopyLinkButton = styled.button`
-    height: 40px;
-    width: 120px;
-    background-color: #cc7764;
-    color: white;
-    border-radius: 4px;
-    border: none;
-    outline: none;
-    font-weight: bold;
-    cursor: pointer;
-    margin: 0 1em 0 0;
-
-    &:hover {
-        height: 38px;
-    }
-`
-
-const ExportPDF = styled.button`
     height: 40px;
     width: 120px;
     background-color: #cc7764;

@@ -260,7 +260,7 @@ export default class AdvancedMode extends Component {
                                 <CopyLinkButton onClick={ this.handleHideForm.bind(this) }>{ this.state.isHidden ? "Show Form" : "Hide Form"}</CopyLinkButton>
                             </Tooltip>
                         </ToolContainer>
-                        <PDFExport ref={(component) => this.pdfExportComponent = component } proxyURL={"https://demos.telerik.com/kendo-ui/service/export"} imageResolution={50}>
+                        <PDFExport ref={(component) => this.pdfExportComponent = component } proxyURL={"https://demos.telerik.com/kendo-ui/service/export"} imageResolution={200}>
                                 { this.state.itemList.length > 0 ? this.state.itemList.map((li, i) => 
                                 <React.Fragment>
                                     <Heading>Result from View Source #{i + 1}</Heading>
@@ -276,17 +276,15 @@ export default class AdvancedMode extends Component {
                                                     <TableRow>
                                                         { Object.keys(item).map((key) =>  {
                                                             if (key === "image") {
-                                                                return (<TableCell><Image src={item[key]}/></TableCell>)
+                                                                return (<TableCell><a href={item[key]} target="_blank"><Image src={item[key]}/></a></TableCell>)
                                                             }
 
                                                             if(key === "index") {
-                                                                return <TableCell>{index}</TableCell>;
+                                                                return <TableCell>{index + 1}</TableCell>;
                                                             }
+                                                            
                                                             return <TableCell>{item[key]}</TableCell>;
-                                                        }
-                                                            // <React.Fragment>
-                                                            //     { key === "image" ? <TableCell><Image src={item[key]}/></TableCell> : <TableCell>{item[key]}</TableCell> || key === "index" ? index : null }
-                                                            // </React.Fragment>
+                                                            }
                                                         )}
                                                     </TableRow>
                                                 ) }

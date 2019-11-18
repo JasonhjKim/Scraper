@@ -11,7 +11,7 @@ export default class CheckerMode extends Component {
 
     handleSubmit(e) {
         e.preventDefault(); 
-        axios.post('http://159.65.69.12:5000/', { "text": e.target[0].value }, { config: {
+        axios.post('https://159.65.69.12:5000/', { "text": e.target[0].value }, { config: {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded'
             }}})
@@ -54,7 +54,7 @@ export default class CheckerMode extends Component {
                                  <TableRow style={{ width: "300px"}}>
                                      <TableCell>{index}</TableCell>
                                      <TableCell> {item.url}</TableCell>
-                                     <TableCell> { item.status ? <StatusTrue/> : <StatusFalse/>}</TableCell>
+                                     <TableCell align="center"> { item.status ? <StatusTrue/> : <StatusFalse/>}</TableCell>
                                  </TableRow>
                             )}
                         </TableBody>
@@ -156,13 +156,13 @@ const StatuTruesWrapper = styled.div`
 
 const StatusFalseWrapper = styled.div`
     font-size: 16px;
-    color: lightgray;
+    color: gray;
 `
 
 const StatusTrue = () => {
     return(
         <StatuTruesWrapper>
-            Up
+            ONLINE
         </StatuTruesWrapper>
     )
 }
@@ -170,7 +170,7 @@ const StatusTrue = () => {
 const StatusFalse = () => {
     return(
         <StatusFalseWrapper>
-            Down
+            SHUTDOWN
         </StatusFalseWrapper>
     )
 }

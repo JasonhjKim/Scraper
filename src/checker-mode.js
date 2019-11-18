@@ -44,6 +44,7 @@ export default class CheckerMode extends Component {
                     <Label><span style={{ color: "#6485CC"}}>Checker Mode:</span> Copy + Paste Links Here: </Label>
                     <TextArea name="" id="" cols="30" rows="10" required></TextArea>
                     <Tip>*Try to limit to 50 links at a time</Tip>
+                    <Tip>*Make sure to use <em>http</em> not <em>https</em></Tip>
                     <SubmitButton type="submit" value={this.state.buttonState ? "Disabed" : "Hit it"} disabled={this.state.buttonState} color={this.state.buttonState}/>
                 </Form>
                 <ResultContainer>

@@ -49,7 +49,7 @@ const LogoHeading = styled.div`
     font-weight: bold;
 `
 const LinkContainer = styled.div`
-    width: 350px;
+    width: 250px;
     display: flex;
     flex-direction: row;
     justify-content: space-around;

@@ -188,6 +188,7 @@ const NavBar = () => {
         <NavBarContainer>
             <LogoHeading>Bunnie's Tool Box</LogoHeading>
             <Advanced><StyledLink to="/advanced">Advanced Mode</StyledLink  ></Advanced>
+            <Advanced><StyledLink to="/checker">Checker Mode</StyledLink></Advanced>
         </NavBarContainer>
     )
 }

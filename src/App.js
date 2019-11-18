@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Switch, Route } from 'react-router-dom';
 import SimpleMode from './simple-mode';
 import AdvancedMode from './advanced-mode';
+import CheckerMode from './checker-mode';
 
 export default class App extends Component {
     render() {
@@ -15,6 +16,10 @@ export default class App extends Component {
 
                     <Route path="/advanced">
                         <AdvancedMode/>
+                    </Route>
+
+                    <Route path="/checker">
+                        <CheckerMode/>
                     </Route>
                 </Switch>
             </Body>

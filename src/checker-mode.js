@@ -31,7 +31,8 @@ export default class CheckerMode extends Component {
             })
 
             .catch(err => {
-                console.log(err);
+                console.log("This is the error: ", err);
+                this.setState({ data: {}, showLoading: false, buttonState: false })
             })
 
     }

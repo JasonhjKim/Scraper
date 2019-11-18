@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom'
-
+import Navbar from "./navbar";
 import { Table, TableHead, TableRow, TableCell, TableBody } from '@material-ui/core';
 
 
@@ -27,7 +27,7 @@ const Label = styled.label`
     color: #64B9CC;
     font-size: 24px;
     font-weight: bold;
-    margin: 1em 0 1em 0;
+    margin: 1em 0 0.5em 0;
 `
 
 const SubmitButton = styled.input`
@@ -40,6 +40,8 @@ const SubmitButton = styled.input`
     border-radius: 8px;
     align-self: center;
     margin: 1em;
+    outline: none;
+    border: none;
 `
 
 const ResultContainer = styled.div`
@@ -96,10 +98,10 @@ export default class SimpleMode extends Component {
         return(
             <Body>
 
-                <NavBar/>
+                <Navbar/>
                 
                 <Form onSubmit={this.handleSubmit.bind(this)}>
-                    <Label>Copy + Paste View Source Lazada Here: </Label>
+                    <Label><span style={{ color: "#6485CC"}}>Simple Mode:</span> Paste View Source Lazada Here: </Label>
                     <TextArea name="" id="" cols="30" rows="10" required></TextArea>
                     <SubmitButton type="submit" value="Hit it" />
                 </Form>
@@ -145,50 +147,4 @@ export default class SimpleMode extends Component {
             </Body>
         )
     }
-}
-
-
-
-const NavBarContainer = styled.div`
-    width: 100%;
-    height: 75px;
-    background-color: #64B9CC;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
-`
-
-const LogoHeading = styled.div`
-    font-size: 28px;
-    color: white;
-    /* margin-left: 150px; */
-    font-weight: bold;
-`
-
-
-const Advanced = styled.button`
-    color: white;
-    background-color: #cc7764;
-    width: 150px;
-    height: 40px;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    font-size: 14px;
-`
-
-const StyledLink = styled(Link)`
-    text-decoration: none;
-    color: white;
-`
-
-const NavBar = () => {
-    return(
-        <NavBarContainer>
-            <LogoHeading>Bunnie's Tool Box</LogoHeading>
-            <Advanced><StyledLink to="/advanced">Advanced Mode</StyledLink  ></Advanced>
-            <Advanced><StyledLink to="/checker">Checker Mode</StyledLink></Advanced>
-        </NavBarContainer>
-    )
 }

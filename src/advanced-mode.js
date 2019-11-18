@@ -4,13 +4,13 @@ import { Link } from 'react-router-dom'
 import { Tooltip, FormGroup, FormControlLabel, Checkbox, TableRow, Table, TableBody, TableHead, TableCell } from '@material-ui/core';
 import { PDFExport  } from '@progress/kendo-react-pdf';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Navbar from './navbar';
 
 const Body = styled.div`
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: hidden;
 `
 
 const Container = styled.div`
@@ -22,6 +22,7 @@ const Container = styled.div`
     /* justify-content: space-between; */
     overflow-y: hidden;
     justify-content: center;
+    overflow-y: hidden;
 `
     const Form = styled.form`
         display: flex;
@@ -32,7 +33,7 @@ const Label = styled.label`
     color: #64B9CC;
     font-size: 24px;
     font-weight: bold;
-    margin: 1em 0 1em 0;
+    margin: 1em 0 0.5em 0;
 `
 
 const SubmitButton = styled.input`
@@ -45,14 +46,16 @@ const SubmitButton = styled.input`
     border-radius: 8px;
     align-self: flex-start;
     margin: 1em 1em 1em 0;
+    outline: none;
+    border: none;
 `
 
 const AddButton = styled.button`
     width: 400px;
-    height: 40px;
+    height: 30px;
     color: white;
     background-color: #3c4f7a;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
     border-radius: 8px;
     align-self: center;
@@ -215,13 +218,13 @@ export default class AdvancedMode extends Component {
     render() {
         return(
             <Body>
-                <NavBar/>
+                <Navbar/>
                 <Tooltip title="Add additional textarea to process multiple view source">
                     <AddButton onClick={ this.handleAddViewSource.bind(this) }>Add Another View Source</AddButton>
                 </Tooltip>
                 <Container>
                     { !this.state.isHidden ? <Form onSubmit={this.handleSubmit.bind(this)}>
-                        <Label>View Source Lazada Here: </Label>
+                        <Label><span style={{ color: "#6485CC"}}>Advanced Mode:</span> View Source Lazada Here: </Label>
                         <FormWrapper>
                             <FormGroup>
                                 {   this.state.boxCount.length > 0 ? this.state.boxCount.map((item, index) => 
@@ -230,16 +233,16 @@ export default class AdvancedMode extends Component {
                                 }
                             </FormGroup>
                             <FormGroup>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Image" onChange={ this.handleChange.bind(this, "image")}/> } label="Image"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Price Show" onChange={ this.handleChange.bind(this, "priceShow")}/> } label="Price Show"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Seller ID" onChange={ this.handleChange.bind(this, "sellerId")}/> } label="Seller ID"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Seller Name" onChange={ this.handleChange.bind(this, "sellerName")}/> } label="Seller Name"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Cheapest Sku" onChange={ this.handleChange.bind(this, "cheapest_sku")}/> } label="Sku"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Product Url" onChange={ this.handleChange.bind(this, "productUrl")}/> } label="Product Url"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Name" onChange={ this.handleChange.bind(this, "name")}/> } label="Name"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Brand ID" onChange={ this.handleChange.bind(this, "brandId")}/> } label="Brand ID"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Brand Name" onChange={ this.handleChange.bind(this, "brandName")}/> } label="Brand Name"/>
-                                <FormControlLabel control={ <Checkbox type="checkbox" value="Location" onChange={ this.handleChange.bind(this, "location")}/> } label="Location"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Image" onChange={ this.handleChange.bind(this, "image")}/> } label="Image"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Price Show" onChange={ this.handleChange.bind(this, "priceShow")}/> } label="Price Show"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Seller ID" onChange={ this.handleChange.bind(this, "sellerId")}/> } label="Seller ID"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Seller Name" onChange={ this.handleChange.bind(this, "sellerName")}/> } label="Seller Name"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Cheapest Sku" onChange={ this.handleChange.bind(this, "cheapest_sku")}/> } label="Sku"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Product Url" onChange={ this.handleChange.bind(this, "productUrl")}/> } label="Product Url"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Name" onChange={ this.handleChange.bind(this, "name")}/> } label="Name"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Brand ID" onChange={ this.handleChange.bind(this, "brandId")}/> } label="Brand ID"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Brand Name" onChange={ this.handleChange.bind(this, "brandName")}/> } label="Brand Name"/>
+                                <StyledFormControlLabel control={ <Checkbox type="checkbox" value="Location" onChange={ this.handleChange.bind(this, "location")}/> } label="Location"/>
                             </FormGroup>
                         </FormWrapper>
                         <SubmitButton type="submit" value="Hit it" />
@@ -249,15 +252,15 @@ export default class AdvancedMode extends Component {
                     <ResultContainer>
                         <ToolContainer>
                             <Tooltip title="Export to PDF">
-                                <CopyLinkButton onClick={ this.exportPDFWithMethod.bind(this) }>Export to PDF</CopyLinkButton>
+                                <ToolButton onClick={ this.exportPDFWithMethod.bind(this) }>Export to PDF</ToolButton>
                             </Tooltip>
                             <Tooltip title="Copy all links to Clipboard">
                                 <CopyToClipboard value={this.state.textbox}>
-                                    <CopyLinkButton onClick={ this.handleCopyLink.bind(this) }>Copy All Links</CopyLinkButton>
+                                    <ToolButton onClick={ this.handleCopyLink.bind(this) }>Copy All Links</ToolButton>
                                 </CopyToClipboard>
                             </Tooltip>
                             <Tooltip title="Hide Form">
-                                <CopyLinkButton onClick={ this.handleHideForm.bind(this) }>{ this.state.isHidden ? "Show Form" : "Hide Form"}</CopyLinkButton>
+                                <ToolButton onClick={ this.handleHideForm.bind(this) }>{ this.state.isHidden ? "Show Form" : "Hide Form"}</ToolButton>
                             </Tooltip>
                         </ToolContainer>
                         <PDFExport ref={(component) => this.pdfExportComponent = component } proxyURL={"https://demos.telerik.com/kendo-ui/service/export"} imageResolution={200}>
@@ -301,42 +304,6 @@ export default class AdvancedMode extends Component {
 
 }
 
-const NavBarContainer = styled.div`
-    width: 100%;
-    height: 75px;
-    background-color: #64B9CC;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
-`
-
-const LogoHeading = styled.div`
-    font-size: 28px;
-    color: white;
-    /* margin-left: 150px; */
-    font-weight: bold;
-`
-
-
-const Simple = styled.button`
-    color: white;
-    background-color: #cc7764;
-    width: 150px;
-    height: 40px;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    font-size: 14px;
-    text-decoration: none;
-`
-
-const StyledLink = styled(Link)`
-    text-decoration: none;
-    color: white;
-`
-
-
 const ToolContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -344,7 +311,7 @@ const ToolContainer = styled.div`
     align-items: center;
 `
 
-const CopyLinkButton = styled.button`
+const ToolButton = styled.button`
     height: 40px;
     width: 120px;
     background-color: #cc7764;
@@ -361,12 +328,6 @@ const CopyLinkButton = styled.button`
     }
 `
 
-const NavBar = () => {
-    return(
-        <NavBarContainer>
-            <LogoHeading>Bunnie's Tool Box</LogoHeading>
-            <Simple><StyledLink to="/">Simple Mode</StyledLink></Simple>
-            <Simple><StyledLink to="/checker">Checker Mode</StyledLink></Simple>
-        </NavBarContainer>
-    )
-}
+const StyledFormControlLabel = styled(FormControlLabel)`
+    color: #3c4f7a;
+`

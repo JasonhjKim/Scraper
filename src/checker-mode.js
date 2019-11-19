@@ -21,7 +21,11 @@ export default class CheckerMode extends Component {
         this.setState({ data: {}, showLoading: true, buttonState: true, copy: null })
         axios.post('http://159.65.69.12:5000/', { "text": e.target[0].value }, { config: {
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': "*",
+              'Access-Control-Allow-Headers': "*",
+              'Access-Control-Allow-Methods': "*",
             }}})
             .then(result => {
                 console.log(result);

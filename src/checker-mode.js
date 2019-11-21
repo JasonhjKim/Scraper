@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import Navbar from './navbar';
 import { ClipLoader } from 'react-spinners';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import socketIOClient from 'socket.io-client';
 
 export default class CheckerMode extends Component {
     state = {
@@ -13,13 +14,20 @@ export default class CheckerMode extends Component {
         showLoading: false,
         buttonState: false,
         copy: null,
+        status: "IDLE"
+    }
+
+    componentDidMount() {
+        const endpoint = "http://localhost:5000";
+        const socket = socketIOClient(endpoint);
+        socket.on('DataReady', data => this.setState({ data: data.data, status: data.status, showLoading: false, buttonState: false }));
     }
 
     handleSubmit(e) {
         e.preventDefault(); 
         console.log("Request sent");
-        this.setState({ data: {}, showLoading: true, buttonState: true, copy: null })
-        axios.post('http://159.65.69.12:5000/', { "text": e.target[0].value }, { config: {
+        this.setState({ data: {}, status: "IDLE", showLoading: true, buttonState: true, copy: null })
+        axios.post('http://localhost:5000/', { "text": e.target[0].value }, { config: {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
               'Access-Control-Allow-Origin': '*',
@@ -30,13 +38,12 @@ export default class CheckerMode extends Component {
             .then(result => {
                 console.log(result);
                 let builder = "";
-                result.data.data.map((item) => builder += (item.status ? "online" : "shut down") + "\n")
-                this.setState({ data: result.data.data, showLoading: false, buttonState: false, copy: builder, }, () => console.log(this.state.data))
+                // result.data.data.map((item) => builder += (item.status ? "online" : "shut down") + "\n")
+                this.setState({ status: result.data.status, est: result.data.est, quantity: result.data.quantity }, () => console.log(this.state.data))
             })
 
             .catch(err => {
                 console.log("This is the error: ", err);
-                this.setState({ data: {}, showLoading: false, buttonState: false })
             })
 
     }
@@ -54,7 +61,11 @@ export default class CheckerMode extends Component {
                 </Form>
                 <ResultContainer>
                     { this.state.showLoading ? <ClipLoader sizeUnit={"px"} size={50} color={"#6485CC"} loading={this.state.showLoading}/> : null}
-                    { this.state.data.length > 0 ?
+                    { this.state.status === "PROCESSING" ? 
+                        <span>Your requet is being processed, estimation wait time for <i>{this.state.quantity}</i> link(s): <b>{this.state.est}</b></span>
+                        : null 
+                    }
+                    { this.state.status === "FINISHED" ?
 
                         <React.Fragment>
                             <ToolContainer>

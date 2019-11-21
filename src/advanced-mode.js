@@ -122,6 +122,12 @@ export default class AdvancedMode extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
+        this.setState({
+            itemList: [],
+            links: "",
+            headings: [],
+            boxCount: [""]
+        })
         this.parseData(e.target[0].value)
     }
 

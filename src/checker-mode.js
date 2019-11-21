@@ -18,7 +18,7 @@ export default class CheckerMode extends Component {
     }
 
     componentDidMount() {
-        const endpoint = "http://localhost:5000";
+        const endpoint = "http://159.65.69.12:5000";
         const socket = socketIOClient(endpoint);
         socket.on('DataReady', data => this.setState({ data: data.data, status: data.status, showLoading: false, buttonState: false }));
     }

@@ -13,13 +13,12 @@ export default class CheckerMode extends Component {
         data: {},
         showLoading: false,
         buttonState: false,
-        copy: null,
-        status: "IDLE"
+        status: "IDLE",
     }
 
     componentDidMount() {
         const endpoint = "http://159.65.69.12:5000";
-        const socket = socketIOClient(endpoint);
+        const socket = socketIOClient(endpoint, { transports: ['websocket'] });
         socket.on('DataReady', data => this.setState({ data: data.data, status: data.status, showLoading: false, buttonState: false }));
     }
 
@@ -57,7 +56,7 @@ export default class CheckerMode extends Component {
                     <TextArea name="" id="" cols="30" rows="10" required></TextArea>
                     <Tip>*Try to limit to 50 links at a time</Tip>
                     <Tip>*Make sure to use <em>http</em> not <em>https</em></Tip>
-                    <SubmitButton type="submit" value={this.state.buttonState ? "Disabed" : "Hit it"} disabled={this.state.buttonState} color={this.state.buttonState}/>
+                    <SubmitButton type="submit" value={this.state.buttonState ? "Disabled" : "Hit it"} disabled={this.state.buttonState} color={this.state.buttonState}/>
                 </Form>
                 <ResultContainer>
                     { this.state.showLoading ? <ClipLoader sizeUnit={"px"} size={50} color={"#6485CC"} loading={this.state.showLoading}/> : null}
@@ -70,7 +69,7 @@ export default class CheckerMode extends Component {
                         <React.Fragment>
                             <ToolContainer>
                                 <Tooltip title="Copy all status from the result">
-                                    <CopyToClipboard text={this.state.copy}>
+                                    <CopyToClipboard text={this.state.builder}>
                                         <ToolButton>Copy All Status</ToolButton>
                                     </CopyToClipboard>
                                 </Tooltip>

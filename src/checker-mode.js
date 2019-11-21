@@ -27,7 +27,7 @@ export default class CheckerMode extends Component {
         e.preventDefault(); 
         console.log("Request sent");
         this.setState({ data: {}, status: "IDLE", showLoading: true, buttonState: true, copy: null })
-        axios.post('http://localhost:5000/', { "text": e.target[0].value }, { config: {
+        axios.post('http://159.65.69.12:5000/', { "text": e.target[0].value }, { config: {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
               'Access-Control-Allow-Origin': '*',

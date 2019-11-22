@@ -80,6 +80,7 @@ export default class CheckerMode extends Component {
                                     <TableRow>
                                         <TableCell>#</TableCell>
                                         <TableCell> Product URL</TableCell>
+                                        <TableCell> Site Title </TableCell>
                                         <TableCell> Status </TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -90,6 +91,7 @@ export default class CheckerMode extends Component {
                                         <TableRow style={{ width: "300px"}}>
                                             <TableCell>{index + 1}</TableCell>
                                             <TableCell> {item.url}</TableCell>
+                                            <TableCell>{ itme.title }</TableCell>
                                             <TableCell align="center"> { item.status ? <StatusTrue/> : <StatusFalse/>}</TableCell>
                                         </TableRow>
                                     )}

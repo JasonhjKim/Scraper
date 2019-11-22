@@ -20,10 +20,10 @@ export default class CheckerMode extends Component {
         const endpoint = "http://159.65.69.12:5000";
         const socket = socketIOClient(endpoint, { transports: ['websocket'] });
         socket.on('DataReady', data => {
-            const { url, status, title } = data.data;
-            console.log(status, title);
-            if (status === false && title.indexOf("non-existent products") === -1) data.data.status = true;
-            console.log(data.data.status, data.data.title);
+            data.data.map((link) => {
+                const { title, url, status} = link;
+                if (status === false && title.indexOf("non-existent products") === - 1) status = true;
+            })
             this.setState({ data: data.data, status: data.status })
         });
     }

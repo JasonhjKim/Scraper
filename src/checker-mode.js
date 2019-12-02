@@ -34,7 +34,8 @@ export default class CheckerMode extends Component {
             this.state.data.map((item) => {
                 builder = builder + (item.status ? "Online\r\n" : "ShutDown\r\n");
             })
-            this.setState({ status: data.status, builder, showLoading: false })
+            console.log(builder);
+            this.setState({ status: data.status, statusBuilder: builder, showLoading: false })
         })
 
     }

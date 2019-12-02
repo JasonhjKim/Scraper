@@ -10,10 +10,11 @@ import socketIOClient from 'socket.io-client';
 
 export default class CheckerMode extends Component {
     state = {
-        data: {},
+        data: [],
         showLoading: false,
         buttonState: false,
         status: "IDLE",
+        statusBuilder: "",
     }
 
     componentDidMount() {
@@ -26,12 +27,22 @@ export default class CheckerMode extends Component {
             })
             this.setState({ data: data.data, status: data.status })
         });
+
+        socket.on("DataFinished", data => {
+            let builder = ""
+            console.log(this.state.data);
+            this.state.data.map((item) => {
+                builder = builder + (item.status ? "Online\r\n" : "ShutDown\r\n");
+            })
+            this.setState({ status: data.status, builder, showLoading: false })
+        })
+
     }
 
     handleSubmit(e) {
         e.preventDefault(); 
         console.log("Request sent");
-        this.setState({ data: {}, status: "IDLE", showLoading: true, buttonState: true, copy: null })
+        this.setState({ data: {}, status: "IDLE", showLoading: true, buttonState: true, copy: null, builder:"" })
         axios.post('http://159.65.69.12:5000/', { "text": e.target[0].value }, { config: {
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
@@ -70,18 +81,23 @@ export default class CheckerMode extends Component {
                         <span>Your requet is being processed, estimation wait time for <i>{this.state.quantity}</i> link(s): <b>{this.state.est}</b></span>
                         : null 
                     }
-                    { this.state.status === "FINISHED" ?
+                    { this.state.data.length > 0 ?
 
                         <React.Fragment>
-                            <ToolContainer>
+                            { this.state.status === "FINISHED"? <ToolContainer>
                                 <Tooltip title="Copy all status from the result">
-                                    <CopyToClipboard text={this.state.builder}>
+                                    <CopyToClipboard text={this.state.statusBuilder}>
                                         <ToolButton>Copy All Status</ToolButton>
                                     </CopyToClipboard>
                                 </Tooltip>
-                            </ToolContainer>
+                                <Tooltip title="Copy all site title from the result">
+                                    <CopyToClipboard text={this.state.statusBuilder}>
+                                        <ToolButton>Copy All Site Title</ToolButton>
+                                    </CopyToClipboard>
+                                </Tooltip>
+                            </ToolContainer> : null}
                             <Label>{`Found Links (${this.state.data.length}):`}</Label>
-                            <StyledTable style={{ width: "1000px"}} fixedHeader={true}>
+                            <StyledTable>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>#</TableCell>
@@ -156,13 +172,14 @@ const Body = styled.div`
 const ResultContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin: 0 6em;
     align-items: center;
+    margin: 0 6em;
 `
 
 const StyledTable = styled(Table)`
     width: 550px;
     height: 280px;
+    align-self: flex-start;
 `
 
 const StatuTruesWrapper = styled.div`
